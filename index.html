@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي جدول الضرب</title>
+    <style>
+        :root {
+            --primary: #7c3aed;
+            --primary-hover: #6d28d9;
+            --bg-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%);
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-color);
+            padding: 20px;
+        }
+        .container {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+            overflow: hidden;
+            padding: 30px;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 26px;
+        }
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            margin: 10px 0;
+            width: 100%;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+        .btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(124, 58, 237, 0.4);
+        }
+        .btn-secondary {
+            background: #4b5563;
+            box-shadow: 0 4px 12px rgba(75, 85, 99, 0.3);
+        }
+        .btn-secondary:hover {
+            background: #374151;
+        }
+        .screen {
+            display: none;
+        }
+        .screen.active {
+            display: block;
+        }
+        .timer-container {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .timer-bar {
+            height: 100%;
+            width: 100%;
+            background: var(--primary);
+            transition: width 1s linear;
+        }
+        .question-box {
+            font-size: 34px;
+            font-weight: bold;
+            margin: 20px 0 30px;
+            color: #111827;
+        }
+        .choices-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .choice-btn {
+            background: #f3f4f6;
+            color: var(--text-color);
+            border: 2px solid #e5e7eb;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .choice-btn:hover {
+            background: #ede9fe;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .choice-btn.correct {
+            background: var(--success) !important;
+            color: white !important;
+            border-color: var(--success) !important;
+        }
+        .choice-btn.wrong {
+            background: var(--danger) !important;
+            color: white !important;
+            border-color: var(--danger) !important;
+        }
+        .tables-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            max-height: 350px;
+            overflow-y: auto;
+            text-align: right;
+            padding: 5px;
+            margin-bottom: 15px;
+        }
+        .table-card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .table-card h3 {
+            color: var(--primary);
+            margin-bottom: 5px;
+            font-size: 16px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 3px;
+        }
+        .score-display {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- شاشة البداية -->
+        <div id="home-screen" class="screen active">
+            <h1>🧠 تحدي جدول الضرب</h1>
+            <p style="margin-bottom: 20px; color: #4b5563;">اختر مستوى الصعوبة وابدأ التحدي!</p>
+            <button class="btn" onclick="startQuiz('easy')">🟢 مستوى سهل (جداول 1 إلى 5 - 10 أسئلة)</button>
+            <button class="btn" onclick="startQuiz('medium')">🟡 مستوى متوسط (جداول 5 إلى 7 - 20 سؤال)</button>
+            <button class="btn" onclick="startQuiz('hard')">🔴 مستوى صعب (جداول 7 إلى 10 - 30 سؤال)</button>
+            <button class="btn btn-secondary" onclick="showTables()">📖 جدول الضرب (من 1 إلى 10)</button>
+        </div>
+
+        <!-- شاشة جدول الضرب -->
+        <div id="tables-screen" class="screen">
+            <h1>📖 جداول الضرب</h1>
+            <div class="tables-grid" id="tables-container"></div>
+            <button class="btn btn-secondary" onclick="goHome()">رجوع للقائمة</button>
+        </div>
+
+        <!-- شاشة الاختبار -->
+        <div id="quiz-screen" class="screen">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; color: #4b5563;">
+                <span id="question-tracker">السؤال: 1 / 10</span>
+                <span id="timer-text">30 ثانية</span>
+            </div>
+            <div class="timer-container">
+                <div class="timer-bar" id="timer-bar"></div>
+            </div>
+            <div class="question-box" id="question-text">5 × 5 = ?</div>
+            <div class="choices-grid" id="choices-container"></div>
+        </div>
+
+        <!-- شاشة النتيجة -->
+        <div id="result-screen" class="screen">
+            <h1>🎉 انتهى الاختبار!</h1>
+            <div class="score-display" id="final-score">درجتك: 10 / 10</div>
+            <p id="result-message" style="margin-bottom: 20px; font-size: 18px; color: #4b5563;"></p>
+            <button class="btn" onclick="goHome()">الرجوع للرئيسية</button>
+        </div>
+    </div>
+
+    <script>
+        let currentDifficulty = '';
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timer;
+        let timeLeft = 30;
+
+        function goHome() {
+            clearInterval(timer);
+            switchScreen('home-screen');
+        }
+
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function showTables() {
+            const container = document.getElementById('tables-container');
+            container.innerHTML = '';
+            for (let i = 1; i <= 10; i++) {
+                let card = document.createElement('div');
+                card.className = 'table-card';
+                let html = `<h3>جدول ${i}</h3>`;
+                for (let j = 1; j <= 10; j++) {
+                    html += `${i} × ${j} = ${i * j}<br>`;
+                }
+                card.innerHTML = html;
+                container.appendChild(card);
+            }
+            switchScreen('tables-screen');
+        }
+
+        function startQuiz(difficulty) {
+            currentDifficulty = difficulty;
+            currentQuestionIndex = 0;
+            score = 0;
+            
+            let count = 10;
+            let minTable = 1, maxTable = 5;
+
+            if (difficulty === 'easy') {
+                count = 10;
+                minTable = 1;
+                maxTable = 5;
+            } else if (difficulty === 'medium') {
+                count = 20;
+                minTable = 5;
+                maxTable = 7;
+            } else if (difficulty === 'hard') {
+                count = 30;
+                minTable = 7;
+                maxTable = 10;
+            }
+
+            questions = generateQuestions(count, minTable, maxTable);
+            switchScreen('quiz-screen');
+            loadQuestion();
+        }
+
+        function generateQuestions(count, minT, maxT) {
+            let qList = [];
+            for (let i = 0; i < count; i++) {
+                let num1 = Math.floor(Math.random() * (maxT - minT + 1)) + minT;
+                let num2 = Math.floor(Math.random() * 10) + 1;
+                let correctAnswer = num1 * num2;
+                
+                let choices = [correctAnswer];
+                while (choices.length < 3) {
+                    let wrong = correctAnswer + (Math.floor(Math.random() * 10) - 5);
+                    if (wrong > 0 && !choices.includes(wrong)) {
+                        choices.push(wrong);
+                    }
+                }
+                choices.sort(() => Math.random() - 0.5);
+
+                qList.push({
+                    text: `${num1} × ${num2} = ?`,
+                    correct: correctAnswer,
+                    choices: choices
+                });
+            }
+            return qList;
+        }
+
+        function loadQuestion() {
+            clearInterval(timer);
+            if (currentQuestionIndex >= questions.length) {
+                showResult();
+                return;
+            }
+
+            let q = questions[currentQuestionIndex];
+            document.getElementById('question-tracker').innerText = `السؤال: ${currentQuestionIndex + 1} / ${questions.length}`;
+            document.getElementById('question-text').innerText = q.text;
+
+            let choicesContainer = document.getElementById('choices-container');
+            choicesContainer.innerHTML = '';
+
+            q.choices.forEach(choice => {
+                let btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.innerText = choice;
+                btn.onclick = () => selectAnswer(choice, q.correct, btn);
+                choicesContainer.appendChild(btn);
+            });
+
+            startTimer();
+        }
+
+        function startTimer() {
+            timeLeft = 30;
+            const timerBar = document.getElementById('timer-bar');
+            const timerText = document.getElementById('timer-text');
+            
+            timerBar.style.width = '100%';
+            timerText.innerText = `${timeLeft} ثانية`;
+
+            timer = setInterval(() => {
+                timeLeft--;
+                timerText.innerText = `${timeLeft} ثانية`;
+                timerBar.style.width = (timeLeft / 30) * 100 + '%';
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    handleTimeout();
+                }
+            }, 1000);
+        }
+
+        function handleTimeout() {
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        function selectAnswer(selected, correct, btnElement) {
+            clearInterval(timer);
+            let allButtons = document.querySelectorAll('.choice-btn');
+            allButtons.forEach(b => b.onclick = null);
+
+            if (selected === correct) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allButtons.forEach(b => {
+                    if (parseInt(b.innerText) === correct) {
+                        b.classList.add('correct');
+                    }
+                });
+            }
+
+            setTimeout(() => {
+                currentQuestionIndex++;
+                loadQuestion();
+            }, 1000);
+        }
+
+        function showResult() {
+            switchScreen('result-screen');
+            document.getElementById('final-score').innerText = `درجتك: ${score} / ${questions.length}`;
+            
+            let percentage = (score / questions.length) * 100;
+            let msg = '';
+            if (percentage === 100) {
+                msg = 'ممتاز جداً! بطل جدول الضرب 🌟';
+            } else if (percentage >= 70) {
+                msg = 'رائع جداً! أداء قُمّة في الإبداع 👍';
+            } else {
+                msg = 'جيد، حاول التدرب أكثر على جدول الضرب لتصبح أفضل 💪';
+            }
+            document.getElementById('result-message').innerText = msg;
+        }
+    </script>
+</body>
+</html>
